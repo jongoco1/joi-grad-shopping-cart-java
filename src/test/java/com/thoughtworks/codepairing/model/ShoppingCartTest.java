@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 public class ShoppingCartTest {
 
     public static final int PRICE = 100;
+    public static final int PRICE600 = 600;
     public static final String PRODUCT = "Product";
 
     Customer customer;
@@ -72,5 +73,60 @@ public class ShoppingCartTest {
         Order order = cart.checkout();
 
         assertEquals(6, order.getLoyaltyPoints());
+    }
+
+    @Test
+    public void shouldCalculatePriceFor20PercentDiscount() {
+        List<Product> products = asList(new Product(PRICE, "DIS_20_ABCD", PRODUCT));
+        ShoppingCart cart = new ShoppingCart(customer, products);
+        Order order = cart.checkout();
+
+        assertEquals(80.0, order.getTotalPrice(), 0.0);
+    }
+
+    @Test
+    public void shouldCalculateLoyaltyPointsFor20PercentDiscount() {
+        List<Product> products = asList(new Product(PRICE, "DIS_20_ABCD", PRODUCT));
+        ShoppingCart cart = new ShoppingCart(customer, products);
+        Order order = cart.checkout();
+
+        assertEquals(5, order.getLoyaltyPoints());
+    }
+
+    @Test
+    public void shouldCalculatePriceFor5PercentDiscountforTotalPriceOver500() {
+        List<Product> products = asList(new Product(PRICE600, "", PRODUCT));
+        ShoppingCart cart = new ShoppingCart(customer, products);
+        Order order = cart.checkout();
+
+        assertEquals(570.0, order.getTotalPrice(), 0.0);
+    }
+
+    @Test
+    public void shouldCalculatePriceFor5PercentDiscountforTotalPriceOver500MultiItem() {
+        List<Product> products = asList(new Product(PRICE, "", PRODUCT),
+                new Product(PRICE, "", PRODUCT),
+                new Product(PRICE, "", PRODUCT),
+                new Product(PRICE, "", PRODUCT),
+                new Product(PRICE, "", PRODUCT),
+                new Product(PRICE, "", PRODUCT));
+        ShoppingCart cart = new ShoppingCart(customer, products);
+        Order order = cart.checkout();
+
+        assertEquals(570.0, order.getTotalPrice(), 0.0);
+    }
+
+    @Test
+    public void shouldCalculatePriceFor5PercentDiscountforTotalPriceOver500MultiItemWith10Discount() {
+        List<Product> products = asList(new Product(PRICE, "", PRODUCT),
+                new Product(PRICE, "DIS_10", PRODUCT),
+                new Product(PRICE, "", PRODUCT),
+                new Product(PRICE, "", PRODUCT),
+                new Product(PRICE, "", PRODUCT),
+                new Product(PRICE, "", PRODUCT));
+        ShoppingCart cart = new ShoppingCart(customer, products);
+        Order order = cart.checkout();
+
+        assertEquals(560.5, order.getTotalPrice(), 0.0);
     }
 }
